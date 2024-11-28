@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caixa de Comentário com Email e Likes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input[type="email"], textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .comments-section {
+            margin-top: 30px;
+        }
+        .comment-item {
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 4px solid #007BFF;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .comment-text {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .like-button {
+            background-color: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+        }
+        .like-button:hover {
+            background-color: #d6d6d6;
+        }
+        .like-count {
+            margin-left: 5px;
+            font-weight: bold;
+            color: #007BFF;
+        }
+        .liked {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Avalie nosso Site com um Comentário</h1>
+        <form id="commentForm">
+            <label for="email">Seu e-mail:</label>
+            <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
+
+            <label for="comment">Escreva seu comentário:</label>
+            <textarea id="comment" name="comment" placeholder="Digite seu comentário aqui..." required></textarea>
+
+            <button class="btn btn-primary px-4" type="button" onclick="addComment()">Enviar Comentário</button>
+        </form>
+        <br>
+        
+        <!-- Botão para voltar ao início -->
+        <button class="btn btn-primary px-4" onclick="voltarParaInicio()">Voltar para o Início</button>
+        
+        <!-- Seção de comentários -->
+        <div class="comments-section" id="commentsSection">
+            <h2>Comentários:</h2>
+            <!-- Comentários aparecerão aqui -->
+        </div>
+    </div>
+
+    <script>
+        // Função para carregar os comentários do LocalStorage
+        function loadComments() {
+            const storedComments = JSON.parse(localStorage.getItem('comments'));
+            if (storedComments) {
+                const commentSection = document.getElementById('commentsSection');
+                storedComments.forEach(comment => {
+                    const commentItem = document.createElement('div');
+                    commentItem.classList.add('comment-item');
+                    const commentText = document.createElement('div');
+                    commentText.classList.add('comment-text');
+                    commentText.innerHTML = `<strong>${comment.email}</strong>: ${comment.comment}`;
+                    
+                    const likeButton = document.createElement('button');
+                    likeButton.classList.add('like-button');
+                    likeButton.innerHTML = `❤️ Curtir <span class="like-count">${comment.likes}</span>`;
+                    likeButton.setAttribute('data-liked', comment.likes > 0 ? 'true' : 'false');
+                    likeButton.onclick = function () {
+                        if (likeButton.getAttribute('data-liked') === 'false') {
+                            const likeCount = likeButton.querySelector('.like-count');
+                            likeCount.textContent = parseInt(likeCount.textContent) + 1;
+                            likeButton.classList.add('liked');
+                            likeButton.setAttribute('data-liked', 'true');
+                            updateLikesInLocalStorage();
+                        }
+                    };
+                    
+                    commentItem.appendChild(commentText);
+                    commentItem.appendChild(likeButton);
+                    commentSection.appendChild(commentItem);
+                });
+            }
+        }
+
+        // Função para salvar os comentários no LocalStorage
+        function saveComment(email, comment) {
+            let comments = JSON.parse(localStorage.getItem('comments')) || [];
+            comments.push({ email, comment, likes: 0 });
+            localStorage.setItem('comments', JSON.stringify(comments));
+        }
+
+        // Função para adicionar um novo comentário
+        function addComment() {
+            const email = document.getElementById('email').value.trim();
+            const comment = document.getElementById('comment').value.trim();
+
+            const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            if (!emailRegex.test(email)) {
+                alert("Por favor, insira um e-mail válido.");
+                return;
+            }
+
+            if (email === "" || comment === "") {
+                alert("Por favor, preencha todos os campos antes de enviar.");
+                return;
+            }
+
+            // Salva o novo comentário no LocalStorage
+            saveComment(email, comment);
+
+            // Recarrega os comentários
+            loadComments();
+
+            // Limpa o formulário
+            document.getElementById('commentForm').reset();
+        }
+
+        // Função para voltar para a página inicial
+        function voltarParaInicio() {
+            window.location.href = 'index.html'; // Redireciona para a página inicial
+        }
+
+        // Função para atualizar os likes no LocalStorage
+        function updateLikesInLocalStorage() {
+            const updatedComments = [];
+            const commentSection = document.getElementById('commentsSection');
+            const commentItems = commentSection.getElementsByClassName('comment-item');
+            for (let commentItem of commentItems) {
+                const email = commentItem.querySelector('.comment-text').innerText.split(':')[0].trim();
+                const comment = commentItem.querySelector('.comment-text').innerText.split(':')[1].trim();
+                const likeCount = parseInt(commentItem.querySelector('.like-count').textContent);
+                updatedComments.push({ email, comment, likes: likeCount });
+            }
+            localStorage.setItem('comments', JSON.stringify(updatedComments));
+        }
+
+        // Carrega os comentários ao inicializar a página
+        window.onload = loadComments;
+    </script>
+</body>
+</html>

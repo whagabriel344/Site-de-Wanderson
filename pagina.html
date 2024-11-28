@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caixa de Comentário com Nome e Likes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .comments-section {
+            margin-top: 30px;
+        }
+        .comment-item {
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 4px solid #007BFF;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .comment-text {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .like-button {
+            background-color: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+        }
+        .like-button:hover {
+            background-color: #d6d6d6;
+        }
+        .like-count {
+            margin-left: 5px;
+            font-weight: bold;
+            color: #007BFF;
+        }
+        .liked {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Avalie nosso Site com um Comentário</h1>
+        <form id="commentForm">
+            <label for="name">Seu nome:</label>
+            <input type="text" id="name" name="name" placeholder="Digite seu nome" required>
+
+            <label for="comment">Escreva seu comentário:</label>
+            <textarea id="comment" name="comment" placeholder="Digite seu comentário aqui..." required></textarea>
+
+            <button class="btn btn-primary px-4" type="button" onclick="addComment()">Enviar Comentário</button>
+        </form>
+        <br>
+        
+        <!-- Botão para voltar ao início -->
+        <button class="btn btn-primary px-4" onclick="voltarParaInicio()">Voltar para o Início</button>
+        
+        <!-- Seção de comentários -->
+        <div class="comments-section" id="commentsSection">
+            <h2>Comentários:</h2>
+            <!-- Comentários aparecerão aqui -->
+        </div>
+    </div>
+
+    <script>
+        // Função para adicionar um novo comentário
+        function addComment() {
+            const name = document.getElementById('name').value.trim();
+            const comment = document.getElementById('comment').value.trim();
+
+            if (name === "" || comment === "") {
+                alert("Por favor, preencha todos os campos antes de enviar.");
+                return;
+            }
+
+            // Cria o elemento do comentário
+            const commentSection = document.getElementById('commentsSection');
+            const commentItem = document.createElement('div');
+            commentItem.classList.add('comment-item');
+
+            // Adiciona o nome do escritor e o texto do comentário
+            const commentText = document.createElement('div');
+            commentText.classList.add('comment-text');
+            commentText.innerHTML = `<strong>${name}</strong>: ${comment}`;
+
+            // Adiciona o botão de like
+            const likeButton = document.createElement('button');
+            likeButton.classList.add('like-button');
+            likeButton.innerHTML = `❤️ Curtir <span class="like-count">0</span>`;
+            likeButton.setAttribute('data-liked', 'false');
+            likeButton.onclick = function () {
+                if (likeButton.getAttribute('data-liked') === 'false') {
+                    const likeCount = likeButton.querySelector('.like-count');
+                    likeCount.textContent = parseInt(likeCount.textContent) + 1;
+                    likeButton.classList.add('liked'); // Muda a cor do coração
+                    likeButton.setAttribute('data-liked', 'true');
+                }
+            };
+
+            // Junta o nome, o texto e o botão de like no comentário
+            commentItem.appendChild(commentText);
+            commentItem.appendChild(likeButton);
+
+            // Adiciona o comentário na seção
+            commentSection.appendChild(commentItem);
+
+            // Limpa o formulário
+            document.getElementById('commentForm').reset();
+        }
+        
+        // Função para voltar para a página inicial
+        function voltarParaInicio() {
+            window.location.href = 'index.html'; // Redireciona para a página inicial
+        }
+    </script>
+</body>
+</html>
